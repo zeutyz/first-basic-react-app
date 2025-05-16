@@ -105,77 +105,86 @@ function Home() {
 
   return (
     <div>
-      {/* Formulário de cadastro */}
-      <div className="form-container">
-        <form>
-          <div className="title">
-            <h1>Cadastro de Usuários</h1>
-          </div>
-          <div className="form-container-body">
-            <div className="form-inputs">
-              <div className="form-inputs-group">
-                <label htmlFor="name">Nome:</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  ref={inputName}
-                />
-              </div>
-              <div className="form-inputs-group">
-                <label htmlFor="age">Idade:</label>
-                <input
-                  type="number"
-                  id="age"
-                  name="age"
-                  required
-                  ref={inputAge}
-                />
-              </div>
-              <div className="form-inputs-group">
-                <label htmlFor="email">Email:</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  ref={inputEmail}
-                />
-              </div>
+      <div className={isEditModalOpen ? "blur-background" : ""}>
+        <div className="form-container">
+          <form>
+            <div className="title">
+              <h1>Cadastro de Usuários</h1>
             </div>
-            <button
-              type="button"
-              className="form-container-body-button"
-              onClick={createUser}
-            >
-              Cadastrar
-            </button>
-          </div>
-        </form>
+            <div className="form-container-body">
+              <div className="form-inputs">
+                <div className="form-inputs-group">
+                  <label htmlFor="name">Nome:</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    ref={inputName}
+                  />
+                </div>
+                <div className="form-inputs-group">
+                  <label htmlFor="age">Idade:</label>
+                  <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    required
+                    ref={inputAge}
+                  />
+                </div>
+                <div className="form-inputs-group">
+                  <label htmlFor="email">Email:</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    ref={inputEmail}
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                className="form-container-body-button"
+                onClick={createUser}
+              >
+                Cadastrar
+              </button>
+            </div>
+          </form>
+        </div>
+        {!isEditModalOpen && (
+          <>
+            <h3>Usuários</h3>
+            {users.map((user) => (
+              <div key={user.id} className="user-card">
+                <div className="user-card-info">
+                  <p>Nome: {user.name}</p>
+                  <p>Idade: {user.age}</p>
+                  <p>Email: {user.email}</p>
+                </div>
+                <div>
+                  <button onClick={() => deleteUser(user.id)}>
+                    <img className="icon" src={Trash} alt="Excluir" />
+                  </button>
+                  <button onClick={() => openEditModal(user)}>
+                    <img className="icon" src={Edit} alt="Editar" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
-
-      {/* Lista de usuários */}
-      <h3>Usuários</h3>
-      {users.map((user) => (
-        <div key={user.id} className="user-card">
-          <div className="user-card-info">
-            <p>Nome: {user.name}</p>
-            <p>Idade: {user.age}</p>
-            <p>Email: {user.email}</p>
-          </div>
-          <div>
-            <button onClick={() => deleteUser(user.id)}>
-              <img className="icon" src={Trash} alt="Excluir" />
-            </button>
-            <button onClick={() => openEditModal(user)}>
-              <img className="icon" src={Edit} alt="Editar" />
-            </button>
+      {isEditModalOpen && userToEdit && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Editar Usuário</h2>
+            <form>...</form>
           </div>
         </div>
-      ))}
-
-      {/* Modal de edição */}
+      )}
       {isEditModalOpen && userToEdit && (
         <div className="modal">
           <div className="modal-content">
