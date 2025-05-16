@@ -1,5 +1,5 @@
 import "./style.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Trash from "../../assets/trash-blank.svg";
 import Edit from "../../assets/pencil-edit.svg";
 import api from "../../services/api.js";
@@ -10,12 +10,33 @@ function Home() {
     getUsers();
   }, []);
 
+  const inputName = useRef();
+  const inputAge = useRef();
+  const inputEmail = useRef();
+
   async function getUsers() {
     try {
       const usersFromApi = await api.get("/users");
       setUsers(usersFromApi.data);
     } catch (error) {
       console.error("Error fetching users:", error);
+    }
+  }
+
+  async function createUser() {
+    try {
+      const newUser = {
+        name: inputName.current.value,
+        email: inputEmail.current.value,
+        age: inputAge.current.value, // aqui está em string porque foi como eu defini no banco
+      };
+      await api.post("/users", newUser);
+      getUsers();
+      inputName.current.value = "";
+      inputEmail.current.value = "";
+      inputAge.current.value = "";
+    } catch (error) {
+      console.error("Error creating user:", error);
     }
   }
 
@@ -68,7 +89,11 @@ function Home() {
                 />
               </div>
             </div>
-            <button type="button" className="form-container-body-button">
+            <button
+              type="button"
+              className="form-container-body-button"
+              onClick={createUser}
+            >
               Cadastrar
             </button>
           </div>
