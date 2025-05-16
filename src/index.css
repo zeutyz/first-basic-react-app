@@ -9,7 +9,7 @@
 body {
   min-height: 100vh;
   min-width: 100vw;
-  background-color: #f8f8f8;
+  background-color: #f3f3f3;
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
@@ -19,7 +19,7 @@ body {
 }
 
 .form-container {
-  margin: auto;
+  margin: 100px auto;
   display: flex;
   flex-direction: column;
   align-items: center;

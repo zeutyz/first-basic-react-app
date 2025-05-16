@@ -1,14 +1,32 @@
 import "./style.css";
+import { useEffect, useState } from "react";
 import Trash from "../../assets/trash-blank.svg";
 import Edit from "../../assets/pencil-edit.svg";
+import api from "../../services/api.js";
 
 function Home() {
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  async function getUsers() {
+    try {
+      const usersFromApi = await api.get("/users");
+      setUsers(usersFromApi.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }
+
+  /*
   const users = [
     { id: 1, name: "Lucas", age: 20, email: "lucas@mail.com" },
     { id: 2, name: "Ana", age: 25, email: "ana@mail.com" },
     { id: 3, name: "João", age: 30, email: "joao@mail.com" },
     { id: 4, name: "Maria", age: 22, email: "maria@mail.com" },
   ];
+  */
 
   return (
     <div>
@@ -21,15 +39,33 @@ function Home() {
             <div className="form-inputs">
               <div className="form-inputs-group">
                 <label htmlFor="name">Nome:</label>
-                <input type="text" id="name" name="name" required />
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  ref={inputName}
+                />
               </div>
               <div className="form-inputs-group">
                 <label htmlFor="age">Idade:</label>
-                <input type="number" id="age" name="age" required />
+                <input
+                  type="number"
+                  id="age"
+                  name="age"
+                  required
+                  ref={inputAge}
+                />
               </div>
               <div className="form-inputs-group">
                 <label htmlFor="email">Email:</label>
-                <input type="email" id="email" name="email" required />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  ref={inputEmail}
+                />
               </div>
             </div>
             <button type="button" className="form-container-body-button">
@@ -38,7 +74,7 @@ function Home() {
           </div>
         </form>
       </div>
-
+      <h3>Usuários</h3>
       {users.map((user) => (
         <div key={user.id} className="user-card">
           <div className="user-card-info">
