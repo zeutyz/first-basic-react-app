@@ -6,20 +6,72 @@ import api from "../../services/api.js";
 
 function Home() {
   const [users, setUsers] = useState([]);
-  useEffect(() => {
-    getUsers();
-  }, []);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState({
+    id: "",
+    name: "",
+    email: "",
+    age: "",
+  });
 
   const inputName = useRef();
   const inputAge = useRef();
   const inputEmail = useRef();
 
+  const inputEditName = useRef();
+  const inputEditAge = useRef();
+  const inputEditEmail = useRef();
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    if (isEditModalOpen && userToEdit) {
+      inputEditName.current.value = userToEdit.name;
+      inputEditAge.current.value = userToEdit.age;
+      inputEditEmail.current.value = userToEdit.email;
+    }
+    if (!isEditModalOpen) {
+      inputEditName.current = "";
+      inputEditAge.current = "";
+      inputEditEmail.current = "";
+    }
+  }, [isEditModalOpen, userToEdit]);
+
+  function openEditModal(user) {
+    setUserToEdit(user);
+    setIsEditModalOpen(true);
+  }
+
+  async function updateUser() {
+    try {
+      if (!userToEdit) {
+        console.log("Erro: userToEdit está indefinido");
+        return;
+      }
+
+      const updatedUser = {
+        name: inputEditName.current.value,
+        email: inputEditEmail.current.value,
+        age: inputEditAge.current.value,
+      };
+      console.log(userToEdit);
+
+      await api.put(`/users/${userToEdit.id}`, updatedUser);
+      await getUsers();
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao editar usuário:", error.response.data.message);
+    }
+  }
+
   async function getUsers() {
     try {
-      const usersFromApi = await api.get("/users");
-      setUsers(usersFromApi.data);
+      const response = await api.get("/users");
+      setUsers(response.data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Erro ao buscar usuários:", error);
     }
   }
 
@@ -28,29 +80,32 @@ function Home() {
       const newUser = {
         name: inputName.current.value,
         email: inputEmail.current.value,
-        age: inputAge.current.value, // aqui está em string porque foi como eu defini no banco
+        age: inputAge.current.value,
       };
+
       await api.post("/users", newUser);
-      getUsers();
+      await getUsers();
+
       inputName.current.value = "";
       inputEmail.current.value = "";
       inputAge.current.value = "";
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Erro ao criar usuário:", error);
     }
   }
 
-  /*
-  const users = [
-    { id: 1, name: "Lucas", age: 20, email: "lucas@mail.com" },
-    { id: 2, name: "Ana", age: 25, email: "ana@mail.com" },
-    { id: 3, name: "João", age: 30, email: "joao@mail.com" },
-    { id: 4, name: "Maria", age: 22, email: "maria@mail.com" },
-  ];
-  */
+  async function deleteUser(id) {
+    try {
+      await api.delete(`/users/${id}`);
+      await getUsers();
+    } catch (error) {
+      console.error("Erro ao deletar usuário:", error);
+    }
+  }
 
   return (
     <div>
+      {/* Formulário de cadastro */}
       <div className="form-container">
         <form>
           <div className="title">
@@ -99,6 +154,8 @@ function Home() {
           </div>
         </form>
       </div>
+
+      {/* Lista de usuários */}
       <h3>Usuários</h3>
       {users.map((user) => (
         <div key={user.id} className="user-card">
@@ -108,15 +165,66 @@ function Home() {
             <p>Email: {user.email}</p>
           </div>
           <div>
-            <button>
+            <button onClick={() => deleteUser(user.id)}>
               <img className="icon" src={Trash} alt="Excluir" />
             </button>
-            <button>
+            <button onClick={() => openEditModal(user)}>
               <img className="icon" src={Edit} alt="Editar" />
             </button>
           </div>
         </div>
       ))}
+
+      {/* Modal de edição */}
+      {isEditModalOpen && userToEdit && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Editar Usuário</h2>
+            <form>
+              <div className="form-inputs">
+                <div className="form-inputs-group">
+                  <label htmlFor="editName">Nome:</label>
+                  <input
+                    type="text"
+                    id="editName"
+                    name="editName"
+                    required
+                    ref={inputEditName}
+                  />
+                </div>
+                <div className="form-inputs-group">
+                  <label htmlFor="editAge">Idade:</label>
+                  <input
+                    type="number"
+                    id="editAge"
+                    name="editAge"
+                    required
+                    ref={inputEditAge}
+                  />
+                </div>
+                <div className="form-inputs-group">
+                  <label htmlFor="editEmail">Email:</label>
+                  <input
+                    type="email"
+                    id="editEmail"
+                    name="editEmail"
+                    required
+                    ref={inputEditEmail}
+                  />
+                </div>
+              </div>
+              <div className="modal-buttons">
+                <button type="button" onClick={() => setIsEditModalOpen(false)}>
+                  Cancelar
+                </button>
+                <button type="button" onClick={updateUser}>
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
